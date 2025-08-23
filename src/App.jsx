@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";        // ✅ no curly braces
+import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
 
 function App() {

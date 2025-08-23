@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -17,23 +17,40 @@ import {
 import {
   Menu as MenuIcon,
   Home,
-  Person,
   Work,
   Email,
   School,
-  Description,
+  Code,
+  VerifiedUser,
 } from '@mui/icons-material';
 
 const Navbar = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
+  useEffect(() => {
+    const handleScroll = () => {
+      const isScrolled = window.scrollY > 20;
+      if (isScrolled !== scrolled) {
+        setScrolled(isScrolled);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [scrolled]);
+
   const navItems = [
     { name: 'Home', href: '#home', icon: <Home /> },
-    { name: 'About', href: '#about', icon: <Person /> },
-    { name: 'Skills', href: '#skills', icon: <Description /> },
+    { name: 'Experience', href: '#experience', icon: <Work /> },
+    { name: 'Skills', href: '#skills', icon: <Code /> },
     { name: 'Projects', href: '#projects', icon: <Work /> },
+    { name: 'Certifications', href: '#certifications', icon: <School /> },
+    { name: 'Testimonials', href: '#testimonials', icon: <VerifiedUser /> },
     { name: 'Contact', href: '#contact', icon: <Email /> },
   ];
 
@@ -42,8 +59,22 @@ const Navbar = () => {
   };
 
   const handleNavClick = (href) => {
-    document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
-    setIsDrawerOpen(false);
+    const element = document.querySelector(href);
+    if (element) {
+      const offset = 80; // Adjust this value to match your navbar height
+      const bodyRect = document.body.getBoundingClientRect().top;
+      const elementRect = element.getBoundingClientRect().top;
+      const elementPosition = elementRect - bodyRect;
+      const offsetPosition = elementPosition - offset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth',
+      });
+    }
+    if (isMobile) {
+      setIsDrawerOpen(false);
+    }
   };
 
   const drawer = (
@@ -56,7 +87,7 @@ const Navbar = () => {
             onClick={() => handleNavClick(item.href)}
             sx={{
               '&:hover': {
-                backgroundColor: 'rgba(25, 118, 210, 0.1)',
+                backgroundColor: 'rgba(37, 99, 235, 0.1)',
               },
             }}
           >
@@ -74,10 +105,12 @@ const Navbar = () => {
     <AppBar
       position="fixed"
       sx={{
-        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-        backdropFilter: 'blur(20px)',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
+        backgroundColor: scrolled ? 'rgba(255, 255, 255, 0.85)' : 'transparent',
+        backdropFilter: scrolled ? 'blur(10px)' : 'none',
+        boxShadow: scrolled ? '0 4px 20px rgba(0, 0, 0, 0.1)' : 'none',
+        borderBottom: scrolled ? '1px solid rgba(0, 0, 0, 0.1)' : 'none',
+        transition: 'all 0.3s ease-in-out',
+        color: 'text.primary',
       }}
       elevation={0}
     >
@@ -86,12 +119,11 @@ const Navbar = () => {
         <Typography
           variant="h6"
           component="div"
+          onClick={() => handleNavClick('#home')}
           sx={{
             fontWeight: 700,
-            background: 'linear-gradient(135deg, #1976d2 0%, #9c27b0 100%)',
-            backgroundClip: 'text',
-            WebkitBackgroundClip: 'text',
-            color: 'transparent',
+            cursor: 'pointer',
+            color: 'primary.main',
             fontSize: '1.5rem',
           }}
         >
@@ -104,16 +136,15 @@ const Navbar = () => {
             {navItems.map((item) => (
               <Button
                 key={item.name}
-                startIcon={item.icon}
                 onClick={() => handleNavClick(item.href)}
                 sx={{
-                  color: 'text.primary',
+                  color: 'text.secondary',
                   textTransform: 'none',
                   fontWeight: 500,
                   borderRadius: 2,
                   px: 2,
                   '&:hover': {
-                    backgroundColor: 'rgba(25, 118, 210, 0.1)',
+                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
                     color: 'primary.main',
                   },
                 }}
@@ -127,9 +158,9 @@ const Navbar = () => {
         {/* Mobile Menu Button */}
         {isMobile && (
           <IconButton
-            color="primary"
+            color="inherit"
             aria-label="open drawer"
-            edge="start"
+            edge="end"
             onClick={handleDrawerToggle}
           >
             <MenuIcon />
